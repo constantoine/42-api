@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 type User struct {
@@ -36,6 +37,24 @@ type User struct {
 	TitlesUsers     []TitlesUser     `json:"titles_users"`
 	URL             string           `json:"url"`
 	Wallet          int              `json:"wallet"`
+}
+
+func (usr User) IsStud() bool {
+	for i := range usr.CursusUsers {
+		if usr.CursusUsers[i].ID == 21 {
+			return true
+		}
+	}
+	return false
+}
+
+func (usr User) GetBH() time.Time {
+	for i := range usr.CursusUsers {
+		if usr.CursusUsers[i].ID == 21 {
+			return usr.CursusUsers[i].BlackholedAt
+		}
+	}
+	return time.Time{}
 }
 
 func (api *API) Me() (User, error) {

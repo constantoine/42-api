@@ -1,8 +1,5 @@
-module api
+module github.com/constantoine/42-api
 
-go 1.13
+go 1.15
 
-require (
-	github.com/gorilla/mux v1.7.3 // indirect
-	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-)
+require golang.org/x/oauth2 v0.0.0-20201109201403-9fd604954f58
