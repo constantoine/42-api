@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -37,17 +38,15 @@ type User struct {
 	Wallet          int              `json:"wallet"`
 }
 
-func (api API) Me() (User, error) {
-	client := &http.Client{}
+func (api *API) Me() (User, error) {
 	var usr User
 	req, err := http.NewRequest("GET", "https://api.intra.42.fr/v2/me", nil)
 	if err != nil {
 		return User{}, err
 	}
-	req.Header.Set("Authorization", "Bearer "+api.Auth.Token)
-	lock()
-	defer unlock()
-	resp, err := client.Do(req)
+	api.lock()
+	defer api.unlock()
+	resp, err := api.conf.Client(context.Background(), api.tok).Do(req)
 	if err != nil {
 		return User{}, err
 	}
