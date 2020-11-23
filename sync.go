@@ -5,19 +5,19 @@ import (
 	"time"
 )
 
-var synchro struct {
+type Sync struct {
 	last time.Time
 	sync.Mutex
 }
 
-func lock() {
-	synchro.Lock()
-	if time.Now().Before(synchro.last.Add(500 * time.Millisecond)) {
-		time.Sleep(time.Until(synchro.last.Add(500 * time.Millisecond)))
+func (s *Sync) lock() {
+	s.Lock()
+	if time.Now().Before(s.last.Add(500 * time.Millisecond)) {
+		time.Sleep(time.Until(s.last.Add(500 * time.Millisecond)))
 	}
 }
 
-func unlock() {
-	synchro.last = time.Now()
-	synchro.Unlock()
+func (s *Sync) unlock() {
+	s.last = time.Now()
+	s.Unlock()
 }
