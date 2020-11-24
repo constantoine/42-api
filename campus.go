@@ -67,6 +67,33 @@ func (api *API) UserCampusUsers(userID uint, query *Search) ([]CampusUser, error
 	return usr, nil
 }
 
+func (api *API) CampusCampusUsers(campusID uint, query *Search) ([]CampusUser, error) {
+	var usr []CampusUser
+	q, err := query.QueryString()
+	if err != nil {
+		return nil, err
+	}
+	uri := fmt.Sprintf("https://api.intra.42.fr/v2/campus/%d/users%s", campusID, q)
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return nil, err
+	}
+	api.lock()
+	defer api.unlock()
+	resp, err := api.conf.Client(context.Background(), api.tok).Do(req)
+	if err != nil {
+		return nil, err
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	if err = json.Unmarshal(body, &usr); err != nil {
+		return nil, err
+	}
+	return usr, nil
+}
+
 func (api *API) CampusUsers(query *Search) ([]CampusUser, error) {
 	var usr []CampusUser
 	q, err := query.QueryString()
