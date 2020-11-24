@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -55,6 +56,56 @@ func (usr User) GetBH() time.Time {
 		}
 	}
 	return time.Time{}
+}
+
+func (api *API) User(userID uint) (User, error) {
+	var usr User
+	uri := fmt.Sprintf("https://api.intra.42.fr/v2/users/%d", userID)
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return User{}, err
+	}
+	api.lock()
+	defer api.unlock()
+	resp, err := api.conf.Client(context.Background(), api.tok).Do(req)
+	if err != nil {
+		return User{}, err
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return User{}, err
+	}
+	if err = json.Unmarshal(body, &usr); err != nil {
+		return User{}, err
+	}
+	return usr, nil
+}
+
+func (api *API) Users(query *Search) ([]User, error) {
+	var usr []User
+	q, err := query.QueryString()
+	if err != nil {
+		return nil, err
+	}
+	uri := fmt.Sprintf("https://api.intra.42.fr/v2/users%s", q)
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return nil, err
+	}
+	api.lock()
+	defer api.unlock()
+	resp, err := api.conf.Client(context.Background(), api.tok).Do(req)
+	if err != nil {
+		return nil, err
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	if err = json.Unmarshal(body, &usr); err != nil {
+		return nil, err
+	}
+	return usr, nil
 }
 
 func (api *API) Me() (User, error) {
