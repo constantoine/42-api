@@ -55,3 +55,7 @@ func (api *API) ConnectWithCode(code string) error {
 	api.tok = tok
 	return nil
 }
+
+func (api *API) GenerateURI(state string) string {
+	return api.conf.AuthCodeURL(state, oauth2.AccessTypeOffline)
+}
