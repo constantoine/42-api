@@ -47,8 +47,12 @@ func NewAPI(id string, secret string, redirect string, scope []string) API {
 	return api
 }
 
-func (api *API) ConnectWithCode(code string) error {
-	tok, err := api.conf.Exchange(context.Background(), code)
+func (api *API) ConnectWithCode(code string, state *string) error {
+	var options []oauth2.AuthCodeOption
+	if state != nil {
+		options = append(options, oauth2.SetAuthURLParam("state", *state))
+	}
+	tok, err := api.conf.Exchange(context.Background(), code, options...)
 	if err != nil {
 		return err
 	}
